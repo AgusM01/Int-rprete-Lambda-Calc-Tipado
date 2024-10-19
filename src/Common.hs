@@ -29,7 +29,7 @@ module Common where
   
   -- Términos con nombres
   data LamTerm  =  LVar String
-                |  LAbs String Type LamTerm   -- Es a la Church y lazy (cuerpo sin eval).
+                |  LAbs String Type LamTerm  -- Es a la Church y lazy (cuerpo sin eval).
                 |  LApp LamTerm LamTerm
                 -- Sección 8
                 |  LLet String LamTerm LamTerm
@@ -46,8 +46,8 @@ module Common where
   -- Términos localmente sin nombres
   data Term  = Bound Int            -- Representa una variable ligada. 
              | Free Name            -- Representa una variable libre. Name = String. 
-             | Term :@: Term
-             | Lam Type Term
+             | Term :@: Term        -- Aplicación.
+             | Lam Type Term        -- Abstracción.
              -- Sección 8
              | Let Term Term
              -- naturales

@@ -24,7 +24,20 @@ import           Common
 
 -- conversion a términos localmente sin nombres
 conversion :: LamTerm -> Term
-conversion = undefined
+conversion lt = conversion' lt [] 
+
+-- auxiliar que mantiene la lista de las variables de ligadura.
+conversion' :: LamTerm -> [String] -> Term
+conversion' lt xs = case lt of
+                        LVar s       -> bound_var s xs 0
+                        LApp lt1 lt2 -> conversion' lt1 :@: conversion' lt2
+                        LAbs s t lt1 -> Lam t (conversion' lt1 (s:xs))  
+
+-- Bound_var lleva la cuenta de la ligadura de la variable.
+bound_var :: String -> [String] -> Int -> Term
+bound_var   n [] _      = Free n
+bound_var   n (s:xs) i  | n == s -> Bound i
+                        | otherwise -> bound_var n xs (i+1)
 
 ----------------------------
 --- evaluador de términos
