@@ -29,15 +29,15 @@ conversion lt = conversion' lt []
 -- auxiliar que mantiene la lista de las variables de ligadura.
 conversion' :: LamTerm -> [String] -> Term
 conversion' lt xs = case lt of
-                        LVar s       -> bound_var s xs 0
-                        LApp lt1 lt2 -> conversion' lt1 :@: conversion' lt2
-                        LAbs s t lt1 -> Lam t (conversion' lt1 (s:xs))  
+                        LVar s                -> bound_var s xs 0
+                        LApp lt1 lt2          -> conversion' lt1 xs :@: conversion' lt2 xs
+                        LAbs s t lt1          -> Lam t (conversion' lt1 (s:xs))  
 
 -- Bound_var lleva la cuenta de la ligadura de la variable.
 bound_var :: String -> [String] -> Int -> Term
-bound_var   n [] _      = Free n
-bound_var   n (s:xs) i  | n == s -> Bound i
-                        | otherwise -> bound_var n xs (i+1)
+bound_var   n [] _      = Free (Global n) 
+bound_var   n (s:xs) i  | n == s = Bound i
+                        | otherwise = bound_var n xs (i+1)
 
 ----------------------------
 --- evaluador de términos
@@ -55,13 +55,18 @@ sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
 quote :: Value -> Term
 quote (VLam t f) = Lam t f
 
--- evalúa un término en un entorno dado
+-- evalúa un término en un entorno dado   --- PREG, PARECE QUE NO ANDA.
 eval :: NameEnv Value Type -> Term -> Value
-eval = undefined
-
-
-
-
+eval l@((n, (v,ty)):xs) te =  case te of
+                                Free n1     -> if n == n1 then v else eval xs (Free n1)  
+                                (t1 :@: t2) ->  let v1 = eval l t1 
+                                                    v2 = eval l t2
+                                                    Lam t' term = sub 0 (quote v1) (quote v2)
+                                                in  VLam t' term
+                                Lam t' term  -> VLam t' term
+                                Let t1 t2    -> let v1 = eval l t1 
+                                                    Lam t' term = sub 0 (quote v1) t2 
+                                                in VLam t' term 
 ----------------------
 --- type checker
 -----------------------

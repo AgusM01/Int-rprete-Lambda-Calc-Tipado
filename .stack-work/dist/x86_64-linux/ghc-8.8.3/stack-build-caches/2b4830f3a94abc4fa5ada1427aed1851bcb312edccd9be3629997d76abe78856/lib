@@ -1,0 +1,24 @@
+/home/agusm01/.ghcup/ghc/8.8.3/lib/ghc-8.8.3/include/ghcversion.h:
+  hash: 40d1b759f485f1cd5a54141a6412691ac2b76930507289a16a6a7b89b045b4d2
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/Paths_TP2.hs:
+  hash: 64bd76e424366152cf10f66c0f21785cc53b160464148d47db0d75c3d485967a
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/cabal_macros.h:
+  hash: 29c1000bd380bc5949930d3f0d4af8a942447ab88c6590b84178dc1de7a1b4aa
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/ChangeLog.md:
+  hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/README.md:
+  hash: be65c06828c615cd30a2c727aa2ac02998245c4abfa260e475da1b0f10c3bdfe
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/TP2.cabal:
+  hash: f04d8f29cbc8c63778d9cee6bc007623d0b8151d4c985c3db6104a0015e911a7
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/package.yaml:
+  hash: 3f5d9d8a2a57469ed5359f4daf48ab7a74a6eb0299ce2def67ad968547b7ac61
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/src/Common.hs:
+  hash: 6bf1b6a33b2f77e3ef81f06c20bba30336563141a39056f6979ea21f66c69709
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/src/Parse.y:
+  hash: fdc84850c1157735ac40989d1fda0cde1c20240de866c5120d955c2dae4857b8
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/src/PrettyPrinter.hs:
+  hash: 3274af03fb614088eda70e336a827413e87ddee5d3bce82be104dc67c90d9a86
+/home/agusm01/LCC/3erAño/ALP/2024/TP2/src/Simplytyped.hs:
+  hash: 48a7a3247713d905e9d3b1ab6d2f376606e932f91f6fa6f42e50e592c66567ef
+/usr/include/stdc-predef.h:
+  hash: 8db4f65e62cade8ae4d9b77960ee6aee093255acc1b637e3fb37d79179733b15

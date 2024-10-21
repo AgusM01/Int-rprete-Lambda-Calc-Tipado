@@ -18,6 +18,7 @@ import Data.Char
     '='     { TEquals }
     ':'     { TColon }
     '\\'    { TAbs }
+    'Let'   { TLet }
     '.'     { TDot }
     '('     { TOpen }
     ')'     { TClose }
@@ -39,6 +40,7 @@ Defexp  : DEF VAR '=' Exp              { Def $2 $4 }
 
 Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
+        | 'Let' VAR ':' Type '=' Exp   { LLet $2 $4 $6 }
         | NAbs                         { $1 }
         
 NAbs    :: { LamTerm }
@@ -89,6 +91,7 @@ data Token = TVar String
                | TTypeE
                | TDef
                | TAbs
+               | TLet
                | TDot
                | TOpen
                | TClose 
@@ -110,6 +113,7 @@ lexer cont s = case s of
                     ('-':('}':cs)) -> \ line -> Failed $ "Línea "++(show line)++": Comentario no abierto"
                     ('-':('>':cs)) -> cont TArrow cs
                     ('\\':cs)-> cont TAbs cs
+                    ('Let':cs) -> cont TLet cs
                     ('.':cs) -> cont TDot cs
                     ('(':cs) -> cont TOpen cs
                     ('-':('>':cs)) -> cont TArrow cs
