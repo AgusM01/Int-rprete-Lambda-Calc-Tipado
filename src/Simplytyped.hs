@@ -55,7 +55,12 @@ sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
 quote :: Value -> Term
 quote (VLam t f) = Lam t f
 
--- evalúa un término en un entorno dado   --- PREG, PARECE QUE NO ANDA.
+-- evalúa un término en un entorno dado   --- PREG.
+-- La idea es seguir "semánticamente" las reglas de evaluación.
+-- No es posible hacer el esquema de reglas literalmente ya que las reglas presentan
+-- la rel. de evaluacion de paso chico y acá hacemos las big-step.
+-- Entonces seguimos la idea en general de, por ej., en caso de aplicación,
+-- evaluar primero t1, luego t2 y sustituir.
 eval :: NameEnv Value Type -> Term -> Value
 eval l@((n, (v,ty)):xs) te =  case te of
                                 Free n1     -> if n == n1 then v else eval xs (Free n1)  
@@ -113,5 +118,6 @@ infer' c e (t :@: u) = infer' c e t >>= \tt -> infer' c e u >>= \tu ->
     FunT t1 t2 -> if (tu == t1) then ret t2 else matchError t1 tu
     _          -> notfunError tt
 infer' c e (Lam t u) = infer' (t : c) e u >>= \tu -> ret $ FunT t tu
-
-
+infer' c e (Let t1 t2) = case infer' c e t1 of
+                            Left s    -> Left s 
+                            Right ty  -> infer' (ty:c) e t2  -- Habría que agg a NameEnv? 

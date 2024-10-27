@@ -18,11 +18,15 @@ import Data.Char
     '='     { TEquals }
     ':'     { TColon }
     '\\'    { TAbs }
-    'Let'   { TLet }
     '.'     { TDot }
     '('     { TOpen }
     ')'     { TClose }
     '->'    { TArrow }
+    'Let'   { TLet }
+    'in'    { TIn }
+    'Suc'   { TSuc }
+    'R'     { TRec }
+    0       { TZero }
     VAR     { TVar $$ }
     TYPEE   { TTypeE }
     DEF     { TDef }
@@ -40,15 +44,18 @@ Defexp  : DEF VAR '=' Exp              { Def $2 $4 }
 
 Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
-        | 'Let' VAR ':' Type '=' Exp   { LLet $2 $4 $6 }
+        | 'Let' VAR '=' Exp 'in' Exp   { LLet $2 $4 $6 }
+        | 'R' Exp Exp Exp              { LRec $2 $3 $4 }
         | NAbs                         { $1 }
         
 NAbs    :: { LamTerm }
         : NAbs Atom                    { LApp $1 $2 }
+        | 'Suc' NAbs                   { LSuc $1 $2 }
         | Atom                         { $1 }
 
 Atom    :: { LamTerm }
         : VAR                          { LVar $1 }  
+        | 0                            { LZero $1 }
         | '(' Exp ')'                  { $2 }
 
 Type    : TYPEE                        { EmptyT }
@@ -92,6 +99,10 @@ data Token = TVar String
                | TDef
                | TAbs
                | TLet
+               | TIn
+               | TRec
+               | TSuc
+               | TZero
                | TDot
                | TOpen
                | TClose 
@@ -113,7 +124,6 @@ lexer cont s = case s of
                     ('-':('}':cs)) -> \ line -> Failed $ "Línea "++(show line)++": Comentario no abierto"
                     ('-':('>':cs)) -> cont TArrow cs
                     ('\\':cs)-> cont TAbs cs
-                    ('Let':cs) -> cont TLet cs
                     ('.':cs) -> cont TDot cs
                     ('(':cs) -> cont TOpen cs
                     ('-':('>':cs)) -> cont TArrow cs
@@ -126,6 +136,11 @@ lexer cont s = case s of
                               ("E",rest)    -> cont TTypeE rest
                               ("def",rest)  -> cont TDef rest
                               (var,rest)    -> cont (TVar var) rest
+                              ("Let",rest)  -> cont TLet rest
+                              ("in", rest)  -> cont TIn rest
+                              ("R", rest)   -> cont TRec rest
+                              ("Suc", rest) -> cont TSuc rest
+                              (0, rest)     -> cont TZero rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs
                               ('{':('-':cs)) -> consumirBK (anidado+1) cl cont cs	

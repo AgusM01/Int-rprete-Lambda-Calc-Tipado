@@ -39,7 +39,7 @@ pp ii vs (Lam t c) =
     <> text ". "
     <> pp (ii + 1) vs c
 pp ii vs (Let t1 t2) = 
-    text "Let " 
+  text "Let " 
     <> pp ii vs t1
     <> text "in "
     <> pp ii vs t2 
@@ -68,8 +68,8 @@ fv (Bound _         ) = []
 fv (Free  (Global n)) = [n]
 fv (t   :@: u       ) = fv t ++ fv u
 fv (Lam _   u       ) = fv u
-
----
+fv (Let t1 t2       ) = fv t1 ++ fv t2
+-- Preg.
 printTerm :: Term -> Doc
 printTerm t = pp 0 (filter (\v -> not $ elem v (fv t)) vars) t
 
