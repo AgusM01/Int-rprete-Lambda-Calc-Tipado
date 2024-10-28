@@ -26,7 +26,7 @@ import Data.Char
     'in'    { TIn }
     'Suc'   { TSuc }
     'R'     { TRec }
-    0       { TZero }
+    '0'     { TZero }
     VAR     { TVar $$ }
     TYPEE   { TTypeE }
     DEF     { TDef }
@@ -50,12 +50,12 @@ Exp     :: { LamTerm }
         
 NAbs    :: { LamTerm }
         : NAbs Atom                    { LApp $1 $2 }
-        | 'Suc' NAbs                   { LSuc $1 $2 }
+        | 'Suc' NAbs                   { LSuc $2 }
         | Atom                         { $1 }
 
 Atom    :: { LamTerm }
         : VAR                          { LVar $1 }  
-        | 0                            { LZero $1 }
+        | '0'                          { LZero }
         | '(' Exp ')'                  { $2 }
 
 Type    : TYPEE                        { EmptyT }
@@ -130,6 +130,7 @@ lexer cont s = case s of
                     (')':cs) -> cont TClose cs
                     (':':cs) -> cont TColon cs
                     ('=':cs) -> cont TEquals cs
+                    ('0':cs) -> cont TZero cs
                     unknown -> \line -> Failed $ 
                      "Línea "++(show line)++": No se puede reconocer "++(show $ take 10 unknown)++ "..."
                     where lexVar cs = case span isAlpha cs of
@@ -140,7 +141,6 @@ lexer cont s = case s of
                               ("in", rest)  -> cont TIn rest
                               ("R", rest)   -> cont TRec rest
                               ("Suc", rest) -> cont TSuc rest
-                              (0, rest)     -> cont TZero rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs
                               ('{':('-':cs)) -> consumirBK (anidado+1) cl cont cs	
