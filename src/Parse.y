@@ -24,7 +24,7 @@ import Data.Char
     '->'    { TArrow }
     'Let'   { TLet }
     'in'    { TIn }
-    'Suc'   { TSuc }
+    'suc'   { TSuc }
     'R'     { TRec }
     '0'     { TZero }
     VAR     { TVar $$ }
@@ -35,6 +35,7 @@ import Data.Char
 %left '=' 
 %right '->'
 %right '\\' '.' 
+%left 'suc'
 
 %%
 
@@ -44,13 +45,13 @@ Defexp  : DEF VAR '=' Exp              { Def $2 $4 }
 
 Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
-        | 'Let' VAR '=' Exp 'in' Exp   { LLet $2 $4 $6 }
+        | 'let' VAR '=' Exp 'in' Exp   { LLet $2 $4 $6 }
         | 'R' Exp Exp Exp              { LRec $2 $3 $4 }
         | NAbs                         { $1 }
         
 NAbs    :: { LamTerm }
         : NAbs Atom                    { LApp $1 $2 }
-        | 'Suc' NAbs                   { LSuc $2 }
+        | 'suc' NAbs                   { LSuc $2 }
         | Atom                         { $1 }
 
 Atom    :: { LamTerm }
@@ -136,11 +137,11 @@ lexer cont s = case s of
                     where lexVar cs = case span isAlpha cs of
                               ("E",rest)    -> cont TTypeE rest
                               ("def",rest)  -> cont TDef rest
-                              (var,rest)    -> cont (TVar var) rest
-                              ("Let",rest)  -> cont TLet rest
+                              ("let",rest)  -> cont TLet rest
                               ("in", rest)  -> cont TIn rest
                               ("R", rest)   -> cont TRec rest
-                              ("Suc", rest) -> cont TSuc rest
+                              ("suc", rest) -> cont TSuc rest
+                              (var,rest)    -> cont (TVar var) rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs
                               ('{':('-':cs)) -> consumirBK (anidado+1) cl cont cs	

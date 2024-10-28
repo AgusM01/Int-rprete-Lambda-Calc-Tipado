@@ -32,6 +32,7 @@ conversion' lt xs = case lt of
                         LVar s                -> bound_var s xs 0
                         LApp lt1 lt2          -> conversion' lt1 xs :@: conversion' lt2 xs
                         LAbs s t lt1          -> Lam t (conversion' lt1 (s:xs))  
+                        LLet s t1 t2          -> Let (conversion' t1 xs) (conversion' t2 xs)
 
 -- Bound_var lleva la cuenta de la ligadura de la variable.
 bound_var :: String -> [String] -> Int -> Term
@@ -50,6 +51,7 @@ sub _ _ (Bound j) | otherwise = Bound j
 sub _ _ (Free n   )           = Free n
 sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
+sub i t (Let t1 t2)           = Let t1 (sub i t t2) 
 
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
@@ -63,11 +65,14 @@ quote (VLam t f) = Lam t f
 -- evaluar primero t1, luego t2 y sustituir.
 eval :: NameEnv Value Type -> Term -> Value
 eval l@((n, (v,ty)):xs) te =  case te of
-                                Free n1     -> if n == n1 then v else eval xs (Free n1)  
+                                Bound i     -> error "eval error - Bound is not a possible entry"
+                                Free n1     -> if n == n1 then v else eval xs (Free n1) -- usar lookup 
                                 (t1 :@: t2) ->  let v1 = eval l t1 
                                                     v2 = eval l t2
-                                                    Lam t' term = sub 0 (quote v1) (quote v2)
-                                                in  VLam t' term
+                                                in case v1 of     
+                                                    VLam t' term -> let Lam t'' term' = sub 0 (quote v2) (quote v1)
+                                                                    in VLam t'' term'
+                                                    _            -> error "eval error - v1 not a Lam value"
                                 Lam t' term  -> VLam t' term
                                 Let t1 t2    -> let v1 = eval l t1 
                                                     Lam t' term = sub 0 (quote v1) t2 

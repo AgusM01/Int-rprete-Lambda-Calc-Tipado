@@ -474,11 +474,11 @@ lexer cont s = case s of
                     where lexVar cs = case span isAlpha cs of
                               ("E",rest)    -> cont TTypeE rest
                               ("def",rest)  -> cont TDef rest
-                              (var,rest)    -> cont (TVar var) rest
-                              ("Let",rest)  -> cont TLet rest
+                              ("let",rest)  -> cont TLet rest
                               ("in", rest)  -> cont TIn rest
                               ("R", rest)   -> cont TRec rest
                               ("Suc", rest) -> cont TSuc rest
+                              (var,rest)    -> cont (TVar var) rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs
                               ('{':('-':cs)) -> consumirBK (anidado+1) cl cont cs	
