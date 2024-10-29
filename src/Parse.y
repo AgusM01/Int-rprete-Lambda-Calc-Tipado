@@ -37,9 +37,11 @@ import Data.Char
 
 %left '=' 
 %right '->'
-%right '\\' '.' 
-%left 'suc'
+%right '\\' '.' 'let' 
+%left 'R'
+%left 'RL'
 %left 'cons'
+%left 'suc'
 
 %%
 
@@ -50,23 +52,10 @@ Defexp  : DEF VAR '=' Exp              { Def $2 $4 }
 Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
         | 'let' VAR '=' Exp 'in' Exp   { LLet $2 $4 $6 }
-        | Rec                          { $1 }
-
-Rec     :: { LamTerm }
-        : 'R' Rec Rec Rec              { LRec $2 $3 $4 }
-        |  RecL                        { $1 }
-
-RecL    :: { LamTerm }  
-        : 'RL' RecL RecL RecL          { LRecL $2 $3 $4 } 
-        | ConsNil                      { $1 }
-
-ConsNil :: { LamTerm }
-         : 'cons' ConsNil ConsNil      { LCons $2 $3 }
-         | 'nil'                       { LNil }
-         | Suc                         { $1 }
-
-Suc     :: { LamTerm }
-        : 'suc' Suc                    { LSuc $2 }
+        | 'suc' Exp                    { LSuc $2 }
+        | 'R' Exp Exp Exp              { LRec $2 $3 $4 }
+        | 'cons' Exp Exp               { LCons $2 $3 }
+        | 'RL' Exp Exp Exp             { LRecL $2 $3 $4 }
         | NAbs                         { $1 }
 
 NAbs    :: { LamTerm }
@@ -76,6 +65,7 @@ NAbs    :: { LamTerm }
 Atom    :: { LamTerm }
         : VAR                          { LVar $1 }  
         | '0'                          { LZero }
+        | 'nil'                        { LNil }
         | '(' Exp ')'                  { $2 }
 
 Type    : TYPEE                        { EmptyT }
