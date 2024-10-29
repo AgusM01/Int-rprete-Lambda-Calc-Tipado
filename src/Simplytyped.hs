@@ -36,6 +36,9 @@ conversion' lt xs = case lt of
                         LZero                 -> Zero
                         LSuc t                -> Suc (conversion' t xs)
                         LRec t1 t2 t3         -> Rec (conversion' t1 xs) (conversion' t2 xs) (conversion' t3 xs)
+                        LNil                  -> Nil 
+                        LCons t1 t2           -> Cons (conversion' t1 xs) (conversion' t2 xs)
+                        LRecL t1 t2 t3        -> RecL (conversion' t1 xs) (conversion' t2 xs) (conversion' t3 xs)
 
 -- Bound_var lleva la cuenta de la ligadura de la variable.
 bound_var :: String -> [String] -> Int -> Term
@@ -54,7 +57,7 @@ sub _ _ (Bound j) | otherwise = Bound j
 sub _ _ (Free n   )           = Free n
 sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
-sub i t (Let t1 t2)           = Let t1 (sub i t t2) 
+sub i t (Let t1 t2)           = Let (sub i t t1) (sub (i + 1) t t2) -- let x = 3 in x -> (\x. x) 3 -> entonces me voy metiendo adentro del let.
 -- preg si tiene sentido sub para Nat
 
 -- convierte un valor en el término equivalente
@@ -62,9 +65,18 @@ quote :: Value -> Term
 quote (VLam t f) = Lam t f
 quote (VNum n)   = case n of 
                     NZero -> Zero
-                    NSuc v -> Suc (f v)
-                    where   f NZero       = Zero 
-                            f (NSuc v')   = Suc (f v') 
+                    NSuc v -> Suc (qn v)
+quote (VList n)   = case n of 
+                      VNil        -> Nil
+                      VCons t1 t2 -> Cons (qn t1) (ql t2)
+qn :: NumVal -> Term
+qn NZero       = Zero 
+qn (NSuc v')   = Suc (qn v')
+
+ql :: ListVal -> Term
+ql VNil        = Nil 
+ql (VCons a b) = Cons (qn a) (ql b)
+
 
 -- evalúa un término en un entorno dado   --- PREG.
 -- La idea es seguir "semánticamente" las reglas de evaluación.
@@ -91,7 +103,20 @@ eval l@((n, (v,ty)):xs) te =  case te of
                                                     Suc t  -> eval l ((t2 :@: (Rec t1 t2 t)) :@: t) -- E-RSucc
                                                     _       ->  let v3 = eval l t3  -- Resuelvo R en caso que t3 sea Rec
                                                                 in eval l (Rec t1 t2 (quote v3))
-----------------------
+                                Nil          -> VList VNil
+                                Cons t1 t2   -> let v1 = (eval l t1)
+                                                in case v1 of
+                                                      VNum s -> let v2 = (eval l (Cons (quote v1) t2))
+                                                                in case v2 of
+                                                                      VList s'  -> VList (VCons s s')
+                                                                      _         -> error "eval error - v2 not Vlist value"
+                                                      _      -> error "eval error - v1 not Vnum value"
+                                RecL t1 t2 t3 -> case t3 of 
+                                                    Nil         -> eval l t1 
+                                                    (Cons n lv) -> eval l (((t2 :@: n) :@: lv) :@: (Rec t1 t2 lv))
+                                                    _           ->  let v3 = eval l t3  -- Resuelvo RL en caso que t3 sea RecL
+                                                                    in eval l (Rec t1 t2 (quote v3))
+----------------------                              
 --- type checker
 -----------------------
 
@@ -156,4 +181,24 @@ infer' c e (Rec t1 t2 t3) = let ty1 = infer' c e t1
                                                                                         Left j  -> Left j
                                                                                         _       -> error "infer' - bad type Rec in t1 or t3"
                                 Left s -> Left s
-                                _      -> error "infer' - bad type Rec in t2" 
+                                _      -> error "infer' - bad type Rec in t2"
+infer' c e (Nil)  = Right ListT
+infer' c e (Cons t1 t2) = case infer' c e t1 of
+                            Right NatT -> case infer' c e t2 of
+                                            Right (ListT) -> Right ListT
+                                            Left s -> Left s
+                                            _      -> error "infer' - t2 has bad type  in Cons t1 t2"
+                            Left s  -> Left s
+                            _       -> error "infer' - t1 has a bad type in Cons t1 t2"
+infer' c e (RecL t1 t2 t3) =  let ty1 = infer' c e t1
+                                  ty2 = infer' c e t2 
+                                  ty3 = infer' c e t3
+                              in case ty2 of
+                                    Right (FunT (FunT (FunT NatT ListT) t) t') -> if t == t' && ty1 == Right t' && ty3 == Right ListT then Right t
+                                                                                  else case ty1 of
+                                                                                          Left s -> Left s
+                                                                                          _      -> case ty3 of
+                                                                                                      Left j  -> Left j
+                                                                                                      _       -> error "infer' - bad type Rec in t1 or t3"
+                                    Left s -> Left s
+                                    _      -> error "infer' - bad type Rec in t2"

@@ -13,12 +13,12 @@
 /home/agusm01/LCC/3erAño/ALP/2024/TP2/package.yaml:
   hash: 3f5d9d8a2a57469ed5359f4daf48ab7a74a6eb0299ce2def67ad968547b7ac61
 /home/agusm01/LCC/3erAño/ALP/2024/TP2/src/Common.hs:
-  hash: 6bf1b6a33b2f77e3ef81f06c20bba30336563141a39056f6979ea21f66c69709
+  hash: aadd1b6aef16cc64d6ef04b65567e0e998bd8d585c52972bbd6755ab345f0f0b
 /home/agusm01/LCC/3erAño/ALP/2024/TP2/src/Parse.y:
-  hash: 55fb5fba325a6ab49b186b6518fc000bb001033e9afb38bedba29b678d719291
+  hash: 4affddf007aa20b129e6ca5d68901e4e511048dbc334726dc2e5d351ce4135ec
 /home/agusm01/LCC/3erAño/ALP/2024/TP2/src/PrettyPrinter.hs:
-  hash: 5a673f9fefa6ae171777529bcbed0df0c434a2831c7e5c4c9deef4b9ec8a7c0d
+  hash: 9b30fef3f38c82ebcc036d89ba293ec12b9d3215bf1b424e29423c968ab2fd5b
 /home/agusm01/LCC/3erAño/ALP/2024/TP2/src/Simplytyped.hs:
-  hash: 749d4c84184348306ee01efd3653c611302022808cd005fdbfff249aa0f74572
+  hash: e3bb9bfb809989e6a10ec405221e8ffa40e1759221cdc9ff36069f48b6caf974
 /usr/include/stdc-predef.h:
   hash: 8db4f65e62cade8ae4d9b77960ee6aee093255acc1b637e3fb37d79179733b15
