@@ -80,7 +80,7 @@ happyExpList = HappyA# "\x00\x40\xe9\x05\x00\x00\x40\x00\x40\xe9\x01\x00\x00\x40
 {-# NOINLINE happyExpListPerState #-}
 happyExpListPerState st =
     token_strs_expected
-  where token_strs = ["error","%dummy","%start_parseStmt","%start_parseStmts","%start_term","Def","Defexp","Exp","NAbs","Atom","Type","Defs","'='","':'","'\\\\'","'.'","'('","')'","'->'","'Let'","'in'","'Suc'","'R'","'0'","VAR","TYPEE","DEF","%eof"]
+  where token_strs = ["error","%dummy","%start_parseStmt","%start_parseStmts","%start_term","Def","Defexp","Exp","NAbs","Atom","Type","Defs","'='","':'","'\\\\'","'.'","'('","')'","'->'","'let'","'in'","'suc'","'R'","'0'","VAR","TYPEE","DEF","%eof"]
         bit_start = st * 28
         bit_end = (st + 1) * 28
         read_bit = readArrayBit happyExpList
@@ -477,7 +477,7 @@ lexer cont s = case s of
                               ("let",rest)  -> cont TLet rest
                               ("in", rest)  -> cont TIn rest
                               ("R", rest)   -> cont TRec rest
-                              ("Suc", rest) -> cont TSuc rest
+                              ("suc", rest) -> cont TSuc rest
                               (var,rest)    -> cont (TVar var) rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs

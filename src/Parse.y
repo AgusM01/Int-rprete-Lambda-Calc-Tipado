@@ -22,7 +22,7 @@ import Data.Char
     '('     { TOpen }
     ')'     { TClose }
     '->'    { TArrow }
-    'Let'   { TLet }
+    'let'   { TLet }
     'in'    { TIn }
     'suc'   { TSuc }
     'R'     { TRec }

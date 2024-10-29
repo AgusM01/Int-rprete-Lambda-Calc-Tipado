@@ -33,6 +33,9 @@ conversion' lt xs = case lt of
                         LApp lt1 lt2          -> conversion' lt1 xs :@: conversion' lt2 xs
                         LAbs s t lt1          -> Lam t (conversion' lt1 (s:xs))  
                         LLet s t1 t2          -> Let (conversion' t1 xs) (conversion' t2 xs)
+                        LZero                 -> Zero
+                        LSuc t                -> Suc (conversion' t xs)
+                        LRec t1 t2 t3         -> Rec (conversion' t1 xs) (conversion' t2 xs) (conversion' t3 xs)
 
 -- Bound_var lleva la cuenta de la ligadura de la variable.
 bound_var :: String -> [String] -> Int -> Term
@@ -52,10 +55,16 @@ sub _ _ (Free n   )           = Free n
 sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
 sub i t (Let t1 t2)           = Let t1 (sub i t t2) 
+-- preg si tiene sentido sub para Nat
 
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
 quote (VLam t f) = Lam t f
+quote (VNum n)   = case n of 
+                    NZero -> Zero
+                    NSuc v -> Suc (f v)
+                    where   f NZero       = Zero 
+                            f (NSuc v')   = Suc (f v') 
 
 -- evalúa un término en un entorno dado   --- PREG.
 -- La idea es seguir "semánticamente" las reglas de evaluación.
@@ -76,7 +85,12 @@ eval l@((n, (v,ty)):xs) te =  case te of
                                 Lam t' term  -> VLam t' term
                                 Let t1 t2    -> let v1 = eval l t1 
                                                     Lam t' term = sub 0 (quote v1) t2 
-                                                in VLam t' term 
+                                                in VLam t' term
+                                Rec t1 t2 t3 -> case t3 of 
+                                                    Zero    -> eval l t1    -- E-RZero
+                                                    Suc t  -> eval l ((t2 :@: (Rec t1 t2 t)) :@: t) -- E-RSucc
+                                                    _       ->  let v3 = eval l t3  -- Resuelvo R en caso que t3 sea Rec
+                                                                in eval l (Rec t1 t2 (quote v3))
 ----------------------
 --- type checker
 -----------------------
@@ -125,4 +139,21 @@ infer' c e (t :@: u) = infer' c e t >>= \tt -> infer' c e u >>= \tu ->
 infer' c e (Lam t u) = infer' (t : c) e u >>= \tu -> ret $ FunT t tu
 infer' c e (Let t1 t2) = case infer' c e t1 of
                             Left s    -> Left s 
-                            Right ty  -> infer' (ty:c) e t2  -- Habría que agg a NameEnv? 
+                            Right ty  -> infer' (ty:c) e t2  -- Habría que agg a NameEnv?
+infer' c e (Zero)      = Right NatT
+infer' c e (Suc t)     = case infer' c e t of
+                            Right NatT -> Right NatT
+                            Left s    -> Left s
+                            _         -> error "infer' - t in Suc t bad typed"
+infer' c e (Rec t1 t2 t3) = let ty1 = infer' c e t1
+                                ty2 = infer' c e t2 
+                                ty3 = infer' c e t3
+                            in case ty2 of
+                                Right (FunT (FunT t NatT) t') -> if t == t' && ty1 == Right t && ty3 == Right NatT then Right t
+                                                                    else case ty1 of
+                                                                            Left s -> Left s
+                                                                            _      -> case ty3 of
+                                                                                        Left j  -> Left j
+                                                                                        _       -> error "infer' - bad type Rec in t1 or t3"
+                                Left s -> Left s
+                                _      -> error "infer' - bad type Rec in t2" 

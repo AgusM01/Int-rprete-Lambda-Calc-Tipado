@@ -43,6 +43,15 @@ pp ii vs (Let t1 t2) =
     <> pp ii vs t1
     <> text "in "
     <> pp ii vs t2 
+pp ii vs (Zero) = text "Zero"
+pp ii vs (Suc t) = 
+    text "Suc "
+        <> pp ii vs t
+pp ii vs (Rec t1 t2 t3) = 
+    text "R "
+        <> pp ii vs t1
+        <> pp ii vs t2
+        <> pp ii vs t3
 
 isLam :: Term -> Bool
 isLam (Lam _ _) = True
@@ -57,7 +66,7 @@ printType :: Type -> Doc
 printType EmptyT = text "E"
 printType (FunT t1 t2) =
   sep [parensIf (isFun t1) (printType t1), text "->", printType t2]
-
+printType NatT = text "Nat"
 
 isFun :: Type -> Bool
 isFun (FunT _ _) = True
