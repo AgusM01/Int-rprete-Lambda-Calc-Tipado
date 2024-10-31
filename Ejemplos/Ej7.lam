@@ -1,0 +1,4 @@
+def SUMPOS = \l:E. RL nil (RL nil SUCCONS l) l
+
+def SUCCONS = \x:E. \y:E. \z:E. cons (succ x) z 
+

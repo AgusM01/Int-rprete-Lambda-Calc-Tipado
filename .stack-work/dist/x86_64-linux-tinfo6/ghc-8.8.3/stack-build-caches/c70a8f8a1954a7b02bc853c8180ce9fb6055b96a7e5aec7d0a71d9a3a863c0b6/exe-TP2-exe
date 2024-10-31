@@ -1,0 +1,18 @@
+/home/martin/.stack/programs/x86_64-linux/ghc-tinfo6-8.8.3/lib/ghc-8.8.3/include/ghcversion.h:
+  hash: 40d1b759f485f1cd5a54141a6412691ac2b76930507289a16a6a7b89b045b4d2
+? /home/martin/LCC/ALP/Interprete-Lambda-Calc-Tipado/.stack-work/dist/x86_64-linux-tinfo6/ghc-8.8.3/build/TP2-exe/autogen/Paths_TP2.hs
+: hash: 9d7240e0b57b9b51be2a4846a3bc6f4c8d408c6e6c5aa82c9c6914aa99e92236
+? /home/martin/LCC/ALP/Interprete-Lambda-Calc-Tipado/.stack-work/dist/x86_64-linux-tinfo6/ghc-8.8.3/build/TP2-exe/autogen/cabal_macros.h
+: hash: 05c25fb742342610bcf5ed66353a0463238d4b9af39f6ec4fa8ee852f099a2aa
+/home/martin/LCC/ALP/Interprete-Lambda-Calc-Tipado/ChangeLog.md:
+  hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
+/home/martin/LCC/ALP/Interprete-Lambda-Calc-Tipado/README.md:
+  hash: be65c06828c615cd30a2c727aa2ac02998245c4abfa260e475da1b0f10c3bdfe
+/home/martin/LCC/ALP/Interprete-Lambda-Calc-Tipado/TP2.cabal:
+  hash: f04d8f29cbc8c63778d9cee6bc007623d0b8151d4c985c3db6104a0015e911a7
+/home/martin/LCC/ALP/Interprete-Lambda-Calc-Tipado/app/Main.hs:
+  hash: 1880970b433f1104dc0189de307e0f0001bde157ea551b3ddeed5062fe501a4f
+/home/martin/LCC/ALP/Interprete-Lambda-Calc-Tipado/package.yaml:
+  hash: 3f5d9d8a2a57469ed5359f4daf48ab7a74a6eb0299ce2def67ad968547b7ac61
+/usr/include/stdc-predef.h:
+  hash: cb08cd5d4cc059a90833ac48a284d25016e8d56ded8ad4cd98d8ac59cc5053f3

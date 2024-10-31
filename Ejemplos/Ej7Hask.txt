@@ -1,0 +1,15 @@
+sumpos l = sumposaux l 0
+
+sumposaux e _ = e
+sumposaux (x:xs) n =
+	let ys = sumposaux xs (n+1)
+	    y = x+n+1
+	in (y:ys)
+
+-------------------------------------------------------
+def FALSE = \x. \y. x
+def TRUE = \x. \y. y
+def ISNIL = \l:E. l (\h:E. \t:E. FALSE) TRUE
+
+
+
