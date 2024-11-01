@@ -56,6 +56,7 @@ pp ii vs (Nil) = text "Nil"
 pp ii vs (Cons t1 t2) = 
     text "Cons "
     <> pp ii vs t1
+    <> text " "
     <> pp ii vs t2
 pp ii vs (RecL t1 t2 t3) =
     text "RL "
@@ -95,7 +96,7 @@ fv Zero                 = ["0"]
 fv (Suc t1            ) = ["Suc "] ++ fv t1
 fv (Rec t1 t2 t3      ) = fv t1 ++ fv t2
 fv Nil                  = ["Nil"]
-fv (Cons t1 t2        ) = ["Cons "] ++ fv t1 ++ fv t2
+fv (Cons t1 t2        ) = ["Cons "] ++ fv t1 ++ [" "] ++ fv t2
 fv (RecL t1 t2 t3     ) = fv t1 ++ fv t2
 -- Preg.
 printTerm :: Term -> Doc

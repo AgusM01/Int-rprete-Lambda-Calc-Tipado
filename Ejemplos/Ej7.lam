@@ -1,4 +1,10 @@
-def SUMPOS = \l:E. RL nil (RL nil SUCCONS l) l
+def Sucesor = \x:Nat. suc x
 
-def SUCCONS = \x:E. \y:E. \z:E. cons (succ x) z 
+-- S toma un natural x, una lista y y una lista z. Retorna una nueva lista con el sucesor de x con la lista z
+def S = \x:Nat. (\y:List. (\z:List. cons (Sucesor x) z))
 
+-- S toma un natural x, una lista y y una lista z. Retorna una nueva lista con el sucesor de x y los sucesores de cada elemento de z
+def SS = \x:Nat. (\y:List. (\z:List. cons (Sucesor x) (RL nil S z)))
+
+-- SUMPOS toma una lista y me devuelve una nueva lista con los elementos sumados con su posicion mas uno
+def SUMPOS =  \l:List. RL nil SS l
