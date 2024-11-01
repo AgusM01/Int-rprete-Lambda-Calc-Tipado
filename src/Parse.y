@@ -32,6 +32,8 @@ import Data.Char
     'RL'    { TRecL }
     VAR     { TVar $$ }
     TYPEE   { TTypeE }
+    TYPENAT { TTypeNat }
+    TYPEL   { TTypeL } 
     DEF     { TDef }
     
 
@@ -69,6 +71,8 @@ Atom    :: { LamTerm }
         | '(' Exp ')'                  { $2 }
 
 Type    : TYPEE                        { EmptyT }
+        | TYPENAT                      { NatT }
+        | TYPEL                        { ListT }
         | Type '->' Type               { FunT $1 $3 }
         | '(' Type ')'                 { $2 }
 
@@ -105,7 +109,8 @@ happyError :: P a
 happyError = \ s i -> Failed $ "Línea "++(show (i::LineNumber))++": Error de parseo\n"++(s)
 
 data Token = TVar String
-	       | TTeypeL
+               | TTypeL
+               | TTypeNat 
                | TTypeE
                | TDef
                | TAbs
@@ -148,16 +153,18 @@ lexer cont s = case s of
                     unknown -> \line -> Failed $ 
                      "Línea "++(show line)++": No se puede reconocer "++(show $ take 10 unknown)++ "..."
                     where lexVar cs = case span isAlpha cs of
-                              ("E",rest)    -> cont TTypeE rest
-                              ("def",rest)  -> cont TDef rest
-                              ("let",rest)  -> cont TLet rest
-                              ("in", rest)  -> cont TIn rest
-                              ("R", rest)   -> cont TRec rest
-                              ("suc", rest) -> cont TSuc rest
-                              ("nil", rest) -> cont TNil rest
+                              ("E",rest)     -> cont TTypeE rest
+                              ("Nat", rest)  -> cont TTypeNat rest 
+                              ("List", rest) -> cont TTypeL rest
+                              ("def",rest)   -> cont TDef rest
+                              ("let",rest)   -> cont TLet rest
+                              ("in", rest)   -> cont TIn rest
+                              ("R", rest)    -> cont TRec rest
+                              ("suc", rest)  -> cont TSuc rest
+                              ("nil", rest)  -> cont TNil rest
                               ("cons", rest) -> cont TCons rest
-                              ("RL", rest)  -> cont TRecL rest
-                              (var,rest)    -> cont (TVar var) rest
+                              ("RL", rest)   -> cont TRecL rest
+                              (var,rest)     -> cont (TVar var) rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs
                               ('{':('-':cs)) -> consumirBK (anidado+1) cl cont cs	

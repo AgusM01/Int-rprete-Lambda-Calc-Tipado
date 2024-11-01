@@ -86,12 +86,16 @@ isFun (FunT _ _) = True
 isFun _          = False
 
 fv :: Term -> [String]
-fv (Bound _         ) = []
-fv (Free  (Global n)) = [n]
-fv (t   :@: u       ) = fv t ++ fv u
-fv (Lam _   u       ) = fv u
-fv (Let t1 t2       ) = fv t1 ++ fv t2
+fv (Bound _         )   = []
+fv (Free  (Global n))   = [n]
+fv (t   :@: u       )   = fv t ++ fv u
+fv (Lam _   u       )   = fv u
+fv (Let t1 t2       )   = fv t1 ++ fv t2
+fv Zero                 = ["0"]
+fv (Suc t1            ) = ["Suc "] ++ fv t1
 fv (Rec t1 t2 t3      ) = fv t1 ++ fv t2
+fv Nil                  = ["Nil"]
+fv (Cons t1 t2        ) = ["Cons "] ++ fv t1 ++ fv t2
 fv (RecL t1 t2 t3     ) = fv t1 ++ fv t2
 -- Preg.
 printTerm :: Term -> Doc

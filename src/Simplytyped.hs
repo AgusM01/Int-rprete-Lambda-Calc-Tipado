@@ -58,7 +58,12 @@ sub _ _ (Free n   )           = Free n
 sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
 sub i t (Let t1 t2)           = Let (sub i t t1) (sub (i + 1) t t2) -- let x = 3 in x -> (\x. x) 3 -> entonces me voy metiendo adentro del let.
--- preg si tiene sentido sub para Nat
+sub i t Zero                  = Zero 
+sub i t (Suc t1)              = Suc (sub (i + 1) t t1)
+sub i t Nil                   = Nil
+sub i t (Cons n xs)           = Cons (sub (i + 1) t n) (sub (i + 2) t xs)
+
+-- Cons 1 (Cons .. -> (\x. \y Cons x y) 1 (Cons ...)
 
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
@@ -85,37 +90,43 @@ ql (VCons a b) = Cons (qn a) (ql b)
 -- Entonces seguimos la idea en general de, por ej., en caso de aplicación,
 -- evaluar primero t1, luego t2 y sustituir.
 eval :: NameEnv Value Type -> Term -> Value
-eval l@((n, (v,ty)):xs) te =  case te of
-                                Bound i     -> error "eval error - Bound is not a possible entry"
-                                Free n1     -> if n == n1 then v else eval xs (Free n1) -- usar lookup 
-                                (t1 :@: t2) ->  let v1 = eval l t1 
-                                                    v2 = eval l t2
-                                                in case v1 of     
-                                                    VLam t' term -> let Lam t'' term' = sub 0 (quote v2) (quote v1)
-                                                                    in VLam t'' term'
-                                                    _            -> error "eval error - v1 not a Lam value"
-                                Lam t' term  -> VLam t' term
-                                Let t1 t2    -> let v1 = eval l t1 
-                                                    Lam t' term = sub 0 (quote v1) t2 
-                                                in VLam t' term
-                                Rec t1 t2 t3 -> case t3 of 
-                                                    Zero    -> eval l t1    -- E-RZero
-                                                    Suc t  -> eval l ((t2 :@: (Rec t1 t2 t)) :@: t) -- E-RSucc
-                                                    _       ->  let v3 = eval l t3  -- Resuelvo R en caso que t3 sea Rec
-                                                                in eval l (Rec t1 t2 (quote v3))
-                                Nil          -> VList VNil
-                                Cons t1 t2   -> let v1 = (eval l t1)
-                                                in case v1 of
-                                                      VNum s -> let v2 = (eval l (Cons (quote v1) t2))
-                                                                in case v2 of
-                                                                      VList s'  -> VList (VCons s s')
-                                                                      _         -> error "eval error - v2 not Vlist value"
-                                                      _      -> error "eval error - v1 not Vnum value"
-                                RecL t1 t2 t3 -> case t3 of 
-                                                    Nil         -> eval l t1 
-                                                    (Cons n lv) -> eval l (((t2 :@: n) :@: lv) :@: (Rec t1 t2 lv))
-                                                    _           ->  let v3 = eval l t3  -- Resuelvo RL en caso que t3 sea RecL
-                                                                    in eval l (Rec t1 t2 (quote v3))
+eval l te =  case te of
+                Bound i     -> error "eval error - Bound is not a possible entry"
+                Free n1     -> case lookup n1 l of
+                                    Nothing -> error "eval - free var not found" 
+                                    Just (v,_) -> v
+                (t1 :@: t2) ->  let v1 = eval l t1  -- Aca hay un error
+                                    v2 = eval l t2
+                                in case v1 of     
+                                    VLam t' term -> let Lam t'' term' = sub 0 (quote v2) (quote v1)
+                                                    in VLam t'' term' -- Checkear que Sucesor no da bien.
+                                    _            -> error "eval error - v1 not a Lam value"
+                Lam t' term  -> VLam t' term
+                Let t1 t2    -> let v1 = eval l t1 
+                                    Lam t' term = sub 0 (quote v1) t2 
+                                in VLam t' term
+                Zero         -> VNum NZero
+                Suc t1       -> case eval l t1 of
+                                VNum n -> VNum (NSuc n) 
+                                _      -> error "eval error - bad type in value suc"
+                Rec t1 t2 t3 -> case t3 of 
+                                    Zero    -> eval l t1    -- E-RZero
+                                    Suc t  -> eval l ((t2 :@: (Rec t1 t2 t)) :@: t) -- E-RSucc
+                                    _       ->  let v3 = eval l t3  -- Resuelvo R en caso que t3 sea Rec
+                                                in eval l (Rec t1 t2 (quote v3))
+                Nil          -> VList VNil
+                Cons t1 t2   -> let v1 = (eval l t1)
+                                in case v1 of
+                                      VNum s -> let v2 = (eval l (Cons (quote v1) t2))
+                                                in case v2 of
+                                                      VList s'  -> VList (VCons s s')
+                                                      _         -> error "eval error - v2 not Vlist value"
+                                      _      -> error "eval error - v1 not Vnum value"
+                RecL t1 t2 t3 -> case t3 of 
+                                    Nil         -> eval l t1 
+                                    (Cons n lv) -> eval l (((t2 :@: n) :@: lv) :@: (Rec t1 t2 lv))
+                                    _           ->  let v3 = eval l t3  -- Resuelvo RL en caso que t3 sea RecL
+                                                    in eval l (Rec t1 t2 (quote v3))
 ----------------------                              
 --- type checker
 -----------------------
