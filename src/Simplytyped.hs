@@ -32,8 +32,8 @@ conversion' lt xs = case lt of
                         LVar s                -> bound_var s xs 0
                         LApp lt1 lt2          -> conversion' lt1 xs :@: conversion' lt2 xs
                         LAbs s t lt1          -> Lam t (conversion' lt1 (s:xs))  
-                        LLet s t1 t2          -> Let (conversion' t1 xs) (conversion' t2 xs)
-                        LZero                 -> Zero
+                        LLet s t1 t2          -> Let (conversion' t1 xs) (conversion' t2 (s:xs)) -- Como la variable s desaparece (sin nombres) se la agrego como ligada en t2,
+                        LZero                 -> Zero                                            -- - (cont. let) - es por eso que en sub le sumo 1 evaluando t2.
                         LSuc t                -> Suc (conversion' t xs)
                         LRec t1 t2 t3         -> Rec (conversion' t1 xs) (conversion' t2 xs) (conversion' t3 xs)
                         LNil                  -> Nil 
