@@ -120,16 +120,16 @@ eval l te =  case te of
                 Nil          -> VList VNil
                 Cons t1 t2   -> let v1 = (eval l t1)
                                 in case v1 of
-                                      VNum s -> let v2 = (eval l (Cons (quote v1) t2))
+                                      VNum s -> let v2 = (eval l t2)
                                                 in case v2 of
                                                       VList s'  -> VList (VCons s s')
                                                       _         -> error "eval error - v2 not Vlist value"
                                       _      -> error "eval error - v1 not Vnum value"
                 RecL t1 t2 t3 -> case t3 of 
                                     Nil         -> eval l t1 
-                                    (Cons n lv) -> eval l (((t2 :@: n) :@: lv) :@: (Rec t1 t2 lv))
+                                    (Cons n lv) -> eval l (((t2 :@: n) :@: lv) :@: (RecL t1 t2 lv))
                                     _           ->  let v3 = eval l t3  -- Resuelvo RL en caso que t3 sea RecL
-                                                    in eval l (Rec t1 t2 (quote v3))
+                                                    in eval l (RecL t1 t2 (quote v3))
 ----------------------                              
 --- type checker
 -----------------------

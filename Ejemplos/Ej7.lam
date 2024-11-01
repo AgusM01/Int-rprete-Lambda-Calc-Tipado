@@ -7,4 +7,12 @@ def S = \x:Nat. (\y:List. (\z:List. cons (Sucesor x) z))
 def SS = \x:Nat. (\y:List. (\z:List. cons (Sucesor x) (RL nil S z)))
 
 -- SUMPOS toma una lista y me devuelve una nueva lista con los elementos sumados con su posicion mas uno
+-- Esta función es MUY ineficiente
 def SUMPOS =  \l:List. RL nil SS l
+
+
+def UNO = Sucesor 0
+def DOS = Sucesor UNO
+def TRES = Sucesor DOS
+
+def LISTA = cons UNO (cons DOS (cons TRES nil))
