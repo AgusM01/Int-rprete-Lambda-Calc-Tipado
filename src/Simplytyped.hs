@@ -59,9 +59,9 @@ sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
 sub i t (Let t1 t2)           = Let (sub i t t1) (sub (i + 1) t t2) -- let x = 3 in x -> (\x. x) 3 -> entonces me voy metiendo adentro del let.
 sub i t Zero                  = Zero 
-sub i t (Suc t1)              = Suc (sub (i + 1) t t1)
+sub i t (Suc t1)              = Suc (sub i t t1)
 sub i t Nil                   = Nil
-sub i t (Cons n xs)           = Cons (sub (i + 1) t n) (sub (i + 2) t xs)
+sub i t (Cons n xs)           = Cons (sub i  t n) (sub (i + 1) t xs)
 
 -- Cons 1 (Cons .. -> (\x. \y Cons x y) 1 (Cons ...)
 
@@ -95,11 +95,11 @@ eval l te =  case te of
                 Free n1     -> case lookup n1 l of
                                     Nothing -> error "eval - free var not found" 
                                     Just (v,_) -> v
-                (t1 :@: t2) ->  let v1 = eval l t1  -- Aca hay un error
-                                    v2 = eval l t2
+                (t1 :@: t2) ->  let v1 = eval l t1  
                                 in case v1 of     
-                                    VLam t' term -> let Lam t'' term' = sub 0 (quote v2) (quote v1)
-                                                    in VLam t'' term' -- Checkear que Sucesor no da bien.
+                                    VLam t' term -> let v2 = eval l t2 
+                                                    in  let s = sub 0 (quote v2) term 
+                                                        in eval l s 
                                     _            -> error "eval error - v1 not a Lam value"
                 Lam t' term  -> VLam t' term
                 Let t1 t2    -> let v1 = eval l t1 
