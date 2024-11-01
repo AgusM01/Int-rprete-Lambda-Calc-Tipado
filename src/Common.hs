@@ -50,7 +50,7 @@ module Common where
              | Term :@: Term        -- Aplicación.
              | Lam Type Term        -- Abstracción.
              -- Sección 8
-             | Let Term Term
+             | Let Term Term        -- Como perdí la x ya que lo representamos sin nombres, es como si en t2 tuviera \x. t2 y por eso le sumo 1 en sub.
              -- naturales
              | Zero
              | Suc Term
