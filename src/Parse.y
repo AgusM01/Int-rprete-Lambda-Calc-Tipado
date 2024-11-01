@@ -55,9 +55,9 @@ Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
         | 'let' VAR '=' Exp 'in' Exp   { LLet $2 $4 $6 }
         | 'suc' Exp                    { LSuc $2 }
-        | 'R' Exp Exp Exp              { LRec $2 $3 $4 }
-        | 'cons' Exp Exp               { LCons $2 $3 }
-        | 'RL' Exp Exp Exp             { LRecL $2 $3 $4 }
+        | 'R' Atom Atom Exp            { LRec $2 $3 $4 }
+        | 'cons' Atom Exp              { LCons $2 $3 }
+        | 'RL' Atom Atom Exp           { LRecL $2 $3 $4 }
         | NAbs                         { $1 }
 
 NAbs    :: { LamTerm }

@@ -60,11 +60,14 @@ sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
 sub i t (Let t1 t2)           = Let (sub i t t1) (sub (i + 1) t t2) -- let x = 3 in x -> (\x. x) 3 -> entonces me voy metiendo adentro del let.
 sub i t Zero                  = Zero 
 sub i t (Suc t1)              = Suc (sub i t t1)
+sub i t (Rec t1 t2 t3)        = Rec (sub i t t1) (sub i t t2) (sub i t t3)
 sub i t Nil                   = Nil
-sub i t (Cons n xs)           = Cons (sub i  t n) (sub (i + 1) t xs)
+sub i t (Cons n xs)           = Cons (sub i  t n) (sub i t xs)
+sub i t (RecL t1 t2 t3)       = RecL (sub i t t1) (sub i t t2) (sub i t t3) 
 
 -- Cons 1 (Cons .. -> (\x. \y Cons x y) 1 (Cons ...)
-
+-- \x.\y.\z Rec x y z 
+--
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
 quote (VLam t f) = Lam t f
@@ -175,7 +178,7 @@ infer' c e (t :@: u) = infer' c e t >>= \tt -> infer' c e u >>= \tu ->
 infer' c e (Lam t u) = infer' (t : c) e u >>= \tu -> ret $ FunT t tu
 infer' c e (Let t1 t2) = case infer' c e t1 of
                             Left s    -> Left s 
-                            Right ty  -> infer' (ty:c) e t2  -- Habría que agg a NameEnv?
+                            Right ty  -> infer' (ty:c) e t2 
 infer' c e (Zero)      = Right NatT
 infer' c e (Suc t)     = case infer' c e t of
                             Right NatT -> Right NatT
@@ -185,7 +188,7 @@ infer' c e (Rec t1 t2 t3) = let ty1 = infer' c e t1
                                 ty2 = infer' c e t2 
                                 ty3 = infer' c e t3
                             in case ty2 of
-                                Right (FunT (FunT t NatT) t') -> if t == t' && ty1 == Right t && ty3 == Right NatT then Right t
+                                Right (FunT t' (FunT NatT t)) -> if t == t' && ty1 == Right t && ty3 == Right NatT then Right t
                                                                     else case ty1 of
                                                                             Left s -> Left s
                                                                             _      -> case ty3 of
@@ -205,7 +208,7 @@ infer' c e (RecL t1 t2 t3) =  let ty1 = infer' c e t1
                                   ty2 = infer' c e t2 
                                   ty3 = infer' c e t3
                               in case ty2 of
-                                    Right (FunT (FunT (FunT NatT ListT) t) t') -> if t == t' && ty1 == Right t' && ty3 == Right ListT then Right t
+                                    Right (FunT NatT (FunT ListT (FunT t t'))) -> if t == t' && ty1 == Right t' && ty3 == Right ListT then Right t
                                                                                   else case ty1 of
                                                                                           Left s -> Left s
                                                                                           _      -> case ty3 of
